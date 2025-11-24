@@ -16,8 +16,14 @@ gcc -O stream.c -o stream
 3. compile for muliprocessors using 
 ```bash
 gcc -O2 -fopenmp -D_OPENMP stream.c -o stream
-``` to compile the code followed by 
+``` 
+to compile the code followed by 
 ```bash
 export OMP_NUM_THREADS= num_cores
-``` to assign number of cores used 
-4. Use ./stream to run the produced executable
+``` 
+to assign number of cores used.
+4. Use 
+```bash
+./stream
+``` 
+in order to run the produced executable.
