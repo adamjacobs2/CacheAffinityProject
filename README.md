@@ -21,7 +21,9 @@ to compile the code followed by
 ```bash
 export OMP_NUM_THREADS= num_cores
 ``` 
-to assign number of cores used. *A compiler that supports OpenMP is required in order to enble OpenPM compilation*
+to assign number of cores used. 
+
+*A compiler that supports OpenMP is required in order to enble OpenPM compilation*
  
 4. Use 
 ```bash
