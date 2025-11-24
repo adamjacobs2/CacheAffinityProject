@@ -22,6 +22,7 @@ to compile the code followed by
 export OMP_NUM_THREADS= num_cores
 ``` 
 to assign number of cores used.
+ 
 4. Use 
 ```bash
 ./stream
