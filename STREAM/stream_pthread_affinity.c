@@ -63,19 +63,16 @@ L3CacheTopology cpu_topology = {
 /* TEST CONFIGURATION                                                    */
 /*-----------------------------------------------------------------------*/
 typedef enum {
-    NO_AFFINITY,      /* Let OS schedule threads anywhere */
-    WITH_AFFINITY     /* Pin threads to cores sharing L3 */
+    NO_AFFINITY, // Sharing L3 cache not considered
+    WITH_AFFINITY // Pin threads to cores sharing L3
 } AffinityMode;
 
 typedef struct {
-    int num_cores;        /* Number of physical cores to use */
-    int threads_per_core; /* Threads per core (1-8) */
+    int num_cores;        // Number of physical cores to use 
+    int threads_per_core; // Threads per core 
     AffinityMode affinity;
 } TestConfig;
 
-/*-----------------------------------------------------------------------*/
-/* GLOBAL DATA                                                           */
-/*-----------------------------------------------------------------------*/
 static STREAM_TYPE *a, *b, *c;
 static double avgtime[4] = {0}, maxtime[4] = {0};
 static double mintime[4] = {FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX};
@@ -94,6 +91,7 @@ typedef struct {
     int kernel;  /* 0=Copy, 1=Scale, 2=Add, 3=Triad */
 } ThreadData;
 
+// Barrier for thread synchronization
 static pthread_barrier_t barrier;
 
 /*-----------------------------------------------------------------------*/
@@ -197,9 +195,8 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-/*-----------------------------------------------------------------------*/
-/* RUN TEST                                                              */
-/*-----------------------------------------------------------------------*/
+// RUN TEST WITH GIVEN CONFIGURATION
+
 void run_test(TestConfig config) {
     int total_threads = config.num_cores * config.threads_per_core;
     pthread_t* threads = malloc(total_threads * sizeof(pthread_t));
@@ -262,7 +259,6 @@ void run_test(TestConfig config) {
         }
     }
     
-    /* Compute statistics (skip first iteration) */
     for (int iter = 1; iter < NTIMES; iter++) {
         for (int kernel = 0; kernel < 4; kernel++) {
             avgtime[kernel] += times[kernel][iter];
@@ -290,9 +286,7 @@ void run_test(TestConfig config) {
     free(thread_data);
 }
 
-/*-----------------------------------------------------------------------*/
-/* THREAD FUNCTION                                                       */
-/*-----------------------------------------------------------------------*/
+// THREAD FUNCTION
 void* stream_thread_func(void* arg) {
     ThreadData* data = (ThreadData*)arg;
     
@@ -334,18 +328,13 @@ void* stream_thread_func(void* arg) {
     return NULL;
 }
 
-/*-----------------------------------------------------------------------*/
-/* SET THREAD AFFINITY (Windows)                                         */
-/*-----------------------------------------------------------------------*/
+// SET THREAD AFFINITY
 int set_thread_affinity(int core_id) {
     DWORD_PTR mask = (DWORD_PTR)1 << core_id;
     DWORD_PTR result = SetThreadAffinityMask(GetCurrentThread(), mask);
     return (result != 0) ? 0 : -1;
 }
 
-/*-----------------------------------------------------------------------*/
-/* GET CORE FOR THREAD                                                   */
-/*-----------------------------------------------------------------------*/
 int get_core_for_thread(int thread_num, int num_cores, AffinityMode affinity) {
     if (affinity == NO_AFFINITY) {
         return -1;  /* No affinity set - let OS schedule anywhere */
@@ -363,9 +352,7 @@ int get_core_for_thread(int thread_num, int num_cores, AffinityMode affinity) {
     return cpu_topology.l3_cores[core_idx % cpu_topology.num_l3_cores];
 }
 
-/*-----------------------------------------------------------------------*/
-/* PRINT CONFIGURATION                                                   */
-/*-----------------------------------------------------------------------*/
+// PRINT CONFIGURATION
 void print_config(TestConfig config) {
     int total_threads = config.num_cores * config.threads_per_core;
     printf("Configuration: %d core(s) x %d thread(s) = %d total threads\n",
@@ -385,18 +372,14 @@ void print_config(TestConfig config) {
     printf("\n");
 }
 
-/*-----------------------------------------------------------------------*/
-/* TIMING FUNCTION                                                       */
-/*-----------------------------------------------------------------------*/
+// TIMING FUNCTION
 double mysecond() {
     struct timeval tp;
     gettimeofday(&tp, NULL);
     return ((double) tp.tv_sec + (double) tp.tv_usec * 1.e-6);
 }
 
-/*-----------------------------------------------------------------------*/
-/* VALIDATION (simplified)                                               */
-/*-----------------------------------------------------------------------*/
+// VALIDATION (simplified)
 void checkSTREAMresults() {
     /* Simplified validation - just check if values are reasonable */
     STREAM_TYPE aj, bj, cj, scalar;
