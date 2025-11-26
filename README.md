@@ -15,7 +15,7 @@ gcc -O stream.c -o stream
 ```
 3. compile for muliprocessors using 
 ```bash
-gcc -O stream_pthread_affinity.c -o stream.exe
+gcc -O stream.c -o stream.exe
 ```
 *A compiler that supports pthreads such as MinGW is required in order to enable pthread compilation*
  
@@ -24,6 +24,14 @@ gcc -O stream_pthread_affinity.c -o stream.exe
 ./stream.exe
 ``` 
 in order to run the produced executable.
+
+5. Use 
+```bash
+chmod +x test.sh
+``` 
+in order to run the produced executable.
+
+
 
 
 
