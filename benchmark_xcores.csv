@@ -1,5 +1,5 @@
-threads,perf_high_affinity,perf_low_affinity
-1,100,90
+threads,perf_high_affinity,perf_low_affinity, throughput 
+1,100,90, 
 2,190,160
 3,280,220
 4,360,300
