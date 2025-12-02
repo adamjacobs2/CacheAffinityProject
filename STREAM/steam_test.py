@@ -5,38 +5,20 @@ import os
 
 # --- Configuration ---
 STREAM_BINARY = "./stream"
+THREAD_RANGE = range(2, 33)  # threads from 2 to 32
 
-# P-core vCPUs (physical cores with 2 vCPUs each)
-P_CORES = [(0,1), (2,3), (4,5), (6,7)]  # adjust if different
+# Define vCPU mappings for this run
+HA_VCPUS = [0, 1]  # High affinity (same P-core)
+LA_VCPUS = [0, 2]  # Low affinity (different P-cores)
 
-# Thread range
-MIN_THREADS = 2
-MAX_THREADS = 16  # adjust to the number of P-core vCPUs
+CSV_FILE = "stream_single_pair_affinity.csv"
 
-CSV_FILE = "stream_pcore_affinity.csv"
-
-# --- Helper to flatten high-affinity vCPUs ---
-def high_affinity_vcpus(num_threads):
-    vcpus = []
-    t_remaining = num_threads
-    for pair in P_CORES:
-        for v in pair:
-            if t_remaining > 0:
-                vcpus.append(v)
-                t_remaining -= 1
-    return vcpus
-
-# --- Helper to spread threads for low affinity ---
-def low_affinity_vcpus(num_threads):
-    vcpus = []
-    t_remaining = num_threads
-    # Take first CPU from each P-core, then second if more threads
-    for i in range(2):  # two vCPUs per core
-        for pair in P_CORES:
-            if t_remaining > 0:
-                vcpus.append(pair[i])
-                t_remaining -= 1
-    return vcpus
+# --- Helper to generate vCPU list by cycling ---
+def generate_vcpus(mapping, num_threads):
+    """
+    Cycle through the vCPU mapping to assign threads.
+    """
+    return [mapping[i % len(mapping)] for i in range(num_threads)]
 
 # --- Run STREAM and extract Scale ---
 def run_stream(vcpus, threads):
@@ -63,14 +45,14 @@ def main():
         writer = csv.writer(f)
         writer.writerow(["threads", "perf_high_affinity", "perf_low_affinity"])
 
-        for threads in range(MIN_THREADS, MAX_THREADS + 1):
-            high_v = high_affinity_vcpus(threads)
-            low_v = low_affinity_vcpus(threads)
+        for threads in THREAD_RANGE:
+            ha_v = generate_vcpus(HA_VCPUS, threads)
+            la_v = generate_vcpus(LA_VCPUS, threads)
 
-            perf_high = run_stream(high_v, threads)
-            perf_low = run_stream(low_v, threads)
+            perf_high = run_stream(ha_v, threads)
+            perf_low = run_stream(la_v, threads)
 
-            print(f"Threads={threads}, High={perf_high}, Low={perf_low}")
+            print(f"Threads={threads}, HA={perf_high}, LA={perf_low}")
             writer.writerow([threads, perf_high, perf_low])
 
     print(f"Results saved to {CSV_FILE}")
