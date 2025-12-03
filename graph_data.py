@@ -1,22 +1,55 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import os
 
-# Example data
-threads = np.array([1, 2, 4, 8, 16, 32])
-perf_high = np.array([100, 195, 380, 740, 1370, 2600])
-perf_low = np.array([90, 160, 300, 520, 850, 1300])
+# Folder containing CSV files
+CSV_DIR = "STREAM"
 
-# Plot performance vs threads
-plt.figure(figsize=(9, 5))
-plt.plot(threads, perf_high, marker='o', linestyle='-', label='High cache affinity')
-plt.plot(threads, perf_low,  marker='s', linestyle='--', label='Low cache affinity')
+# Expected STREAM output files
+FILES = {
+    "copy":  "stream_copy_ha_la.csv",
+    "scale": "stream_scale_ha_la.csv",
+    "add":   "stream_add_ha_la.csv",
+    "triad": "stream_triad_ha_la.csv",
+}
 
-plt.xlabel('Threads')
-plt.ylabel('Performance (ops/sec)')
-plt.title('Performance vs Threads — High vs Low Cache Affinity')
-plt.xticks(threads)
-plt.grid(True)
-plt.legend()
-plt.tight_layout()
-plt.show()
+# --- Load CSV into dataframe ---
+def load_csv(path):
+    if not os.path.exists(path):
+        print(f"[SKIP] Missing file: {path}")
+        return None
+    return pd.read_csv(path)
+
+# --- Plot HA vs LA for 1 kernel ---
+def plot_kernel(kernel, df):
+    threads = df['threads'].to_numpy()
+    perf_high = df['perf_high_affinity'].to_numpy()
+    perf_low  = df['perf_low_affinity'].to_numpy()
+
+    plt.figure(figsize=(9, 5))
+    plt.plot(threads, perf_high, marker='o', linestyle='-',  label='High cache affinity')
+    plt.plot(threads, perf_low,  marker='s', linestyle='--', label='Low cache affinity')
+
+    plt.xlabel('Threads')
+    plt.ylabel('Performance (MB/s)')
+    plt.title(f"{kernel.capitalize()} — High vs Low Affinity")
+    plt.xticks(threads)
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+# --- Main ---
+def main():
+    print("=== STREAM Graph Generator ===")
+    for kernel, filename in FILES.items():
+        path = os.path.join(CSV_DIR, filename)
+        df = load_csv(path)
+        if df is not None:
+            print(f"[OK] Plotting {kernel}")
+            plot_kernel(kernel, df)
+    print("Done.")
+
+if __name__ == "__main__":
+    main()

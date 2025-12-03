@@ -15,31 +15,24 @@ gcc -O stream.c -o stream
 ```
 3. compile for muliprocessors using 
 ```bash
-gcc -O2 -fopenmp -D_OPENMP stream.c -o stream
-``` 
-to compile the code followed by 
-```bash
-export OMP_NUM_THREADS= num_cores
-``` 
-to assign number of cores used. 
-
-*A compiler that supports OpenMP is required in order to enable OpenPM compilation*
+gcc -O stream.c -o stream.exe
+```
+*A compiler that supports pthreads such as MinGW is required in order to enable pthread compilation*
  
 4. Use 
 ```bash
-./stream
+./stream.exe
 ``` 
 in order to run the produced executable.
 
-### Minimum Array Size
+5. Use 
+```bash
+chmod +x test.sh
+``` 
+in order to run the produced executable.
 
-Use the following formula to compute the required array size in elements of which needs to be changed for STREAM_ARRAY_SIZE within the stream.c file:
 
-$$\text{Array Size (elements)} \ge 4 \times \frac{\text{Total L3 Cache (bytes)}}{\text{Size of STREAM\_TYPE (bytes)}}$$
 
-If using STREAM_TYPE double, then size would be 8 bytes.
-
-*Changing the line for STREAM_ARRAY_SIZE in stream.c is important for forcing traffic.*
 
 
 
