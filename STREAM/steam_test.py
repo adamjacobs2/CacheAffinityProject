@@ -6,7 +6,7 @@ import statistics
 
 # --- Configuration ---
 STREAM_BINARY = "./stream"
-THREAD_RANGE = range(2, 33, 2)  # threads from 2 to 32
+THREAD_RANGE = range(2, 33, 2)  # only even threads
 
 # High-affinity configurations
 HA_CONFIGS = [
@@ -21,12 +21,10 @@ LA_CONFIGS = [
 ]
 
 
-# --- Helper to generate vCPU list by cycling ---
 def generate_vcpus(mapping, num_threads):
     return [mapping[i % len(mapping)] for i in range(num_threads)]
 
 
-# --- Run STREAM and extract the chosen kernel ---
 def run_stream(vcpus, threads, test):
     vcpu_str = ",".join(str(v) for v in vcpus)
     env = {"OMP_NUM_THREADS": str(threads), **os.environ}
@@ -47,14 +45,26 @@ def run_stream(vcpus, threads, test):
 
 
 def main():
+    mode = choose_mode()
     test = choose_kernel()
-    CSV_FILE = f"stream_{test.lower()}_ha_la.csv"
+    CSV_FILE = f"stream_{test.lower()}_{mode}.csv"
 
     with open(CSV_FILE, "w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["threads", "perf_high_affinity", "perf_low_affinity"])
+        if mode == "BASELINE":
+            writer.writerow(["threads", "perf"])
+        else:
+            writer.writerow(["threads", "perf_high_affinity", "perf_low_affinity"])
 
         for threads in THREAD_RANGE:
+            if mode == "BASELINE":
+                # Baseline: all threads on single core (core 0)
+                vcpus = [0] * threads
+                perf = run_stream(vcpus, threads, test)
+                print(f"Baseline: threads={threads}, perf={perf}, test={test}")
+                writer.writerow([threads, perf])
+                continue
+
             # --- High Affinity average ---
             ha_results = []
             for ha_v in HA_CONFIGS:
@@ -77,6 +87,24 @@ def main():
             writer.writerow([threads, perf_high, perf_low])
 
     print(f"Results saved to {CSV_FILE}")
+
+
+def choose_mode():
+    print("Which mode do you want to test?")
+    print("1) HA vs LA")
+    print("2) Baseline")
+    choice = input("Enter choice (1–2): ").strip()
+
+    mapping = {
+        "1": "ha_la",
+        "2": "BASELINE",
+    }
+
+    if choice not in mapping:
+        print("Invalid choice. Defaulting to HA vs LA.")
+        return "ha_la"
+
+    return mapping[choice]
 
 
 def choose_kernel():
