@@ -1,0 +1,8 @@
+mode,cpu,size,bandwidth_MBps
+baseline,0,1M,40952.19
+baseline,0,1M,42638.62
+baseline,0,1M,38737.72
+baseline,0,2M,23367.17
+baseline,0,2M,22677.65
+baseline,0,2M,23287.55
+baseline,0,4M,20522.61
