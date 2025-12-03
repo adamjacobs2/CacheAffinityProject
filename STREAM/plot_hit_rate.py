@@ -26,7 +26,7 @@ plt.plot(threads, df["perf_high_affinity_hit_rate"], marker='o', label="HA L1 hi
 plt.plot(threads, df["perf_low_affinity_hit_rate"], marker='o', label="LA L1 hit rate")
 plt.xlabel("Threads")
 plt.ylabel("Hit rate")
-plt.title("STREAM L1 Cache Hit Rate vs Thread Count")
+plt.title("STREAM (copy) L1 Cache Hit Rate vs Thread Count")
 plt.grid(True)
 plt.legend()
 plt.tight_layout()
