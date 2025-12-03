@@ -11,7 +11,7 @@ THREAD_RANGE = range(2, 33)  # threads from 2 to 32
 HA_VCPUS = [0, 1] # High affinity (same P-core)
 LA_VCPUS = [0, 2]  # Low affinity (different P-cores)
 
-CSV_FILE = "stream_single_pair_affinity.csv"
+
 
 # --- Helper to generate vCPU list by cycling ---
 def generate_vcpus(mapping, num_threads):
@@ -41,10 +41,11 @@ def run_stream(vcpus, threads, test):
 
 
 def main():
+    test = choose_kernel()
+    CSV_FILE = f"stream_{test}_ha_la.csv"
     with open(CSV_FILE, "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["threads", "perf_high_affinity", "perf_low_affinity"])
-        test = choose_kernel()
         for threads in THREAD_RANGE:
             ha_v = generate_vcpus(HA_VCPUS, threads)
             la_v = generate_vcpus(LA_VCPUS, threads)
@@ -55,7 +56,8 @@ def main():
 
             print(f"Threads={threads}, HA={perf_high}, LA={perf_low}", "test:", test)
             writer.writerow([threads, perf_high, perf_low])
-
+    
+    
     print(f"Results saved to {CSV_FILE}")
 
 
