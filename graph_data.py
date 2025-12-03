@@ -8,10 +8,10 @@ CSV_DIR = "STREAM"
 
 # Expected STREAM output files
 FILES = {
-    "copy":  "stream_COPY_ha_la.csv",
-    "scale": "stream_SCALE_ha_la.csv",
-    "add":   "stream_ADD_ha_la.csv",
-    "triad": "stream_TRIAD_ha_la.csv",
+    "copy":  "stream_copy_ha_la.csv",
+    "scale": "stream_scale_ha_la.csv",
+    "add":   "stream_add_ha_la.csv",
+    "triad": "stream_triad_ha_la.csv",
 }
 
 # --- Load CSV into dataframe ---
