@@ -19,10 +19,11 @@ plt.plot(threads, perf_high, marker='o', linestyle='-', label='High cache affini
 plt.plot(threads, perf_low,  marker='s', linestyle='--', label='Low cache affinity')
 
 plt.xlabel('Threads')
-plt.ylabel('Performance (ops/sec)')
+plt.ylabel('Performance (mbps/sec)')
 plt.title('Performance vs Threads — High vs Low Cache Affinity')
 plt.xticks(threads)
 plt.grid(True)
 plt.legend()
 plt.tight_layout()
+plt.show()
 plt.show()
